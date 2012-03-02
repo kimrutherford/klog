@@ -1,0 +1,16 @@
+<%attr>
+title => 'Ask Tony'
+</%attr>
+
+<%init>
+my $link_maker = $m->interp()->{link_maker};
+my $sig = "-- Tony";
+$link_maker->make_links(\$sig);
+</%init>
+
+<h1>Ask Tony Blair</h1>
+<ul class="longnews">
+<& show_items.mas, sig => $sig, type => 'ask', new_first => 1 &>
+</ul>
+
+<div class="clear"/>

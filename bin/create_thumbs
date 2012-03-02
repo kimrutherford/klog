@@ -1,0 +1,46 @@
+#!/usr/bin/perl -w  # -*-Perl-*-
+#----------------------------------------------------------------------
+# make_rss
+
+use warnings;
+use strict;                     # Always use strict!
+use Cwd;
+
+my $start_dir;
+BEGIN {
+  $start_dir = getcwd();
+  push (@INC, "$start_dir/lib");
+}
+
+use File::Path;
+use File::Copy;
+use File::Compare;
+
+use LabServ;
+use LabServ::Config;
+use LabServ::Photos;
+
+my $lab_serv = new LabServ(items_dir => "$start_dir/items");
+
+my @items = $lab_serv->filter_items(undef, '!:hidden');
+
+my $dest_dir = $start_dir . '/' . LabServ::Config->destination_dir() . '/thumbs';
+
+mkpath($dest_dir);
+
+for my $item (@items) {
+  next if !defined $item->image();
+  my $source_file = $start_dir . '/' . LabServ::Config->source_dir() . '/img/'. $item->image();
+  my $dest_file = $dest_dir . '/' . $item->image();
+
+  LabServ::Photos->make_thumb($source_file, "$dest_file.tmp");
+
+  if (!-e $dest_file ||
+      File::Compare::compare ($dest_file, "$dest_file.tmp") == 1) {
+    # needs updating
+    warn "out of date: $dest_file\n";
+    rename "$dest_file.tmp", $dest_file or die;
+  } else {
+    unlink "$dest_file.tmp" or die;
+  }
+}

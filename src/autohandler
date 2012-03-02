@@ -1,0 +1,84 @@
+%#<!-- -*- xml -*- -->
+<%init>
+ my $title = $m->base_comp->attr('title');
+</%init>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang="en">
+<& head.mas, title => $title &>
+
+  <body>
+    <div class="page">
+      <div class="header">
+        <div id="box_logo">
+          <a href="./">
+            <img src="img/box_logo.gif" alt="square Labourservative logo"
+                 width="110" height="85" class="graphic"/>
+          </a>
+        </div>
+        <div id="logo">
+          <a href="./">
+            <img src="img/labservlogo.gif" alt="long Labourservative logo"
+                 width="253" height="47" class="graphic"/>
+          </a>
+        </div>
+      </div>
+      <div class="menu">
+        <span class="item">
+          <a href="./">Home</a>
+        </span>
+        <span class="item">
+          <a href="news">News</a>
+        </span>
+        <span class="item">
+          <a href="blog">Blog</a>
+        </span>
+        <span class="item">
+          <a href="ask">Ask Tony</a>
+        </span>
+        <span class="item">
+          <a href="photos">Gallery</a>
+        </span>
+        <span class="item">
+          <a href="people">People</a>
+        </span>
+        <span class="item">
+          <a href="history">History</a>
+        </span>
+      </div>
+      <div class="content">
+        <div class="left-col">
+<& left_buttons.mas, title => $title &>
+        </div>
+        <div class="right-col">
+          <div class="banner">
+            <img src="/banner_pic" class="graphic"/>
+          </div>
+          <div class="itemsum">
+<& item_summary.mas &>
+          </div>
+        </div>
+        <div class="middle-col">
+% $m->call_next;
+% # for firefox 1.0.4 - the div collapses if it's empty
+&nbsp;
+        </div>
+      </div>
+      <div style="clear: both">
+      </div>
+      <div class="footer">
+<& footer.mas &>
+      </div>
+
+      <script src="http://www.google-analytics.com/urchin.js"
+              type="text/javascript" defer='true'>
+      </script>
+      <script type="text/javascript">
+_uacct = "UA-602790-1";
+try {urchinTracker();} catch (e) { /* ignore - google is down */  }
+      </script>
+    </div>
+  </body>
+</html>
+

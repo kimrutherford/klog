@@ -1,0 +1,70 @@
+<%args>
+$type
+$columns => 2
+</%args>
+<%init>
+use LabServ;
+use LabServ::Photos;
+use LabServ::Config;
+
+my $lab_serv = $m->interp()->{lab_serv};
+
+my $column_width = 100 / $columns;
+my @items = $lab_serv->filter_items($type, (), '!:hidden');
+
+sub img_out
+{
+  my $item = shift;
+  my $id = $item->id();
+  my $type = $item->type();
+  print "<a href='${type}_${id}'>\n";
+  print "<img src='thumbs/" . $item->image() . "' class='graphic'/></a>\n";
+}
+
+sub text_out
+{
+  my $item = shift;
+  my $id = $item->id();
+  my $type = $item->type();
+  my $post = $item->post();
+  my $subject = $item->subject();
+
+  print "<a href='${type}_${id}'>";
+  print "$subject";
+
+  if ($type eq 'person' && defined $post) {
+    print "<br/><span class='jobtitle'>$post</span><br/>\n";
+  }
+  print "</a>\n";
+}
+
+</%init>
+
+<h1><% LabServ->display_type($type) %></h1>
+
+<table>
+% for (my $row = 0; $row < @items / $columns; $row++) {
+  <tr>
+%   for (my $column = 0; $column < $columns; $column++) {
+%     my $item = $items[$row * $columns + $column];
+%     if (defined $item) {
+    <td valign="top" width="<% $column_width %>%">
+%       img_out($item);
+    </td>
+%     }
+%   }
+  </tr>
+  <tr>
+%   for (my $column = 0; $column < $columns; $column++) {
+%     my $item = $items[$row * $columns + $column];
+%     if (defined $item) {
+    <td valign="top" class="subject" width="<% $column_width %>%">
+%       text_out($item);
+    </td>
+%     }
+%   }
+  </tr>
+% }
+</table>
+
+<div class="clear"/>

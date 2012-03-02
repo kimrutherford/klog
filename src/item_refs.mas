@@ -1,0 +1,22 @@
+<%args>
+$item
+</%args>
+<%init>
+my $ref_manager = $m->interp()->{ref_manager};
+</%init>
+
+<h4>Articles mentioning <% $item->subject() %>:</h4>
+
+<ul>
+% for my $item ($ref_manager->get_references($item)) {
+<li>
+<%perl>
+  my $type = $item->type();
+  my $id = $item->id();
+  my $subject = $item->subject();
+  print LabServ->display_type($type), ": ";
+  print "<a href='${type}_${id}'>$subject</a>\n";
+</%perl>
+</li>
+% }
+</ul>

@@ -1,0 +1,12 @@
+<%attr>
+title => 'Main'
+</%attr>
+
+<h1>Party news</h1>
+<ul class="longnews">
+<& show_items.mas, type => 'news', max => 4, new_first => 1, tags => ('front') &>
+</ul>
+
+<!--<a class="more" href="news">Rest of news ...</a>-->
+
+<div class="clear"/>

@@ -1,0 +1,185 @@
+#!/usr/bin/perl -w  # -*-Perl-*-
+#----------------------------------------------------------------------
+# news -- Kim Rutherford
+
+BEGIN {
+  push (@INC, "lib");
+}
+
+use strict;
+use warnings;
+use Term::ReadKey;
+use IO::Handle;
+use Time::ParseDate;
+use Getopt::Long;
+
+autoflush STDOUT 1;
+
+my %options = (
+               date_opt => undef,
+);
+
+my %opt_config = (
+                  "--date|d=s" => \$options{date_opt},
+);
+
+my $dir = "items";
+
+my $option_parser = new Getopt::Long::Parser;
+$option_parser->configure("gnu_getopt");
+
+sub usage
+{
+  my $exit_val = shift;
+  my $message = shift;
+
+  warn "$message\n";
+  exit $exit_val;
+}
+
+if (!$option_parser->getoptions(%opt_config)) {
+  usage(2, "wrong args");
+}
+
+if (@ARGV) {
+  usage(2, "wrong args");
+}
+
+my $cdate;
+
+if (defined $options{date_opt}) {
+  $cdate = parsedate($options{date_opt});
+} else {
+  $cdate = time();
+}
+
+die if !defined $cdate;
+
+use LabServ qw(create_item);
+
+my ($type) = $0 =~ m:/([^/]*)$:;
+
+print "$type\n";
+
+sub read_file
+{
+  my $file = shift;
+
+  open my $f, "<", $file or die;
+  local $/ = undef;
+  my $ret = <$f>;
+  close $f or die;
+
+  return $ret;
+}
+
+sub ask
+{
+  my $message = shift;
+
+  print ($message);
+
+  ReadMode 4;
+  my $key = ReadKey(0);
+  ReadMode 1;
+
+  print "\n";
+
+  if ($key =~ /^[yt]$/i) {
+    return 1;
+  } else {
+    return 0;
+  }
+
+}
+
+sub again
+{
+  return ask("try again? ");
+}
+
+sub del_file
+{
+  return ask("delete file? ");
+}
+
+sub remove_and_die
+{
+  my $file = shift;
+  my $message = shift;
+
+  if (del_file()) {
+    unlink $file or die "couldn't remove $file\n";
+  }
+  die "$message\n";
+}
+
+my $file = create_item($dir, $type, $cdate);
+
+my $new_item;
+
+LOOP:
+while (1) {
+  my $file_orig = read_file($file);
+
+  system("$ENV{EDITOR} $file");
+
+  my $file_new = read_file($file);
+
+  eval {
+    $new_item = LabServ::Item->read($file);
+  };
+  if ($@) {
+    warn "failed to parse item: $@\n";
+    if (again()) {
+      next LOOP;
+    } else {
+      remove_and_die $file, "cancelling\n";
+    }
+  }
+
+  if (!defined $new_item->subject()) {
+    warn "no subject set\n";
+    if (again()) {
+      next LOOP;
+    } else {
+      remove_and_die $file, "cancelling\n";
+    }
+  }
+
+  if (!defined $new_item->author()) {
+    if ($new_item->type() eq 'blog') {
+      warn "no author in $file\n";
+      if (again()) {
+        next LOOP;
+      } else {
+        remove_and_die $file, "cancelling\n";
+      }
+    }
+  }
+
+  if (!defined $new_item->image()) {
+    die "no image in $file\n";
+    if (again()) {
+      next LOOP;
+    } else {
+      remove_and_die $file, "cancelling\n";
+    }
+  }
+
+  last;
+}
+
+warn "created $file\n";
+
+system("svn add $file");
+
+if (defined $new_item->image()) {
+  my $img_file = "src/img/" . $new_item->image();
+  if (-e $img_file) {
+    system("svn add $img_file");
+  } else {
+    warn "warning: missing $img_file\n";
+  }
+}
+

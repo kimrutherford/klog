@@ -1,0 +1,8 @@
+# -*-Perl-*-
+use LabServ;
+
+my $lab_serv = $interp->{lab_serv};
+my @items = $lab_serv->filter_items();
+return map {
+  {item=>$_, file_name=>$_->type() . '_' . $_->id() . '.html'}
+} @items;

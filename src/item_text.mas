@@ -1,0 +1,56 @@
+<%args>
+$item
+$image_at_top => 0
+$link_image => 0
+$sig => undef
+$use_thumbs => 0
+</%args>
+<%init>
+use LabServ::LinkMaker;
+my $link_maker = $m->interp()->{link_maker};
+</%init>
+
+<%perl>
+  my $id = $item->id();
+  my $type = $item->type();
+  my @paras = @{$item->text()};
+  if (@paras) {
+    if (!$image_at_top && defined $item->image_position() && 
+        $item->image_position() eq 'centre') {
+        if ($link_image) {
+          print "<a href='${type}_${id}'>\n";
+        }
+        LabServ::Image->img($item, 0, $use_thumbs);
+        if ($link_image) {
+          print "</a>\n";
+        }
+    }
+
+    for (my $i = 0; $i < @paras; $i++) {
+      print "<p>\n";
+      if ($i == 0 && !$image_at_top && !(defined $item->image_position() && 
+                                         $item->image_position() eq 'centre')) {
+        if ($link_image) {
+          print "<a href='${type}_${id}'>\n";
+        }
+        LabServ::Image->img($item, 0, $use_thumbs);
+        if ($link_image) {
+          print "</a>\n";
+        }
+      }
+
+      if ($type ne 'person') {
+        $link_maker->make_links(\$paras[$i]);
+      }
+
+      print "$paras[$i]\n</p>\n";
+    }
+  } else {
+    if (!$image_at_top) {
+      LabServ::Image->img($item, 0, $use_thumbs);
+    }
+  }
+  if (defined $sig) {
+    print "<span class='signature'>$sig</span>\n";
+  }
+</%perl>

@@ -1,0 +1,5 @@
+#!/bin/sh -
+
+rsync --cvs-exclude -v --progress -a -e ssh --sparse www/ labourse@90plan.ovh.net:www-beta/
+#rsync --cvs-exclude -v --progress -a -e ssh --sparse cgi-bin/ labourse@90plan.ovh.net:cgi-bin/
+

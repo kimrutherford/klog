@@ -1,0 +1,10 @@
+<%attr>
+title => 'All items'
+</%attr>
+
+<h2>Recent changes</h2>
+<ul class="itemsum">
+<& show_items.mas, type => ['news', 'blog', 'pic', 'ask'], short => 1, show_icon => 1, new_first => 1,
+                   show_date => 0, show_author => 'after-subject', show_more_link => 0, 
+                   max => 30 &>
+</ul>

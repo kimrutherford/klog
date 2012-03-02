@@ -1,0 +1,41 @@
+<%args>
+$type
+$max => 9e+99
+$offset => 0
+$new_first => 0
+@tags => ()
+$short => 0
+$show_icon => 0
+$show_date => 1
+$show_author => 'yes'
+$show_more_link => 1
+$use_thumbs => 0
+$sig => undef
+</%args>
+
+<%init>
+use LabServ;
+use LabServ::Config;
+
+my $lab_serv = $m->interp()->{lab_serv};
+my @items = $lab_serv->filter_items($type, @tags, '!:hidden');
+
+if (@items > $max) {
+  @items = @items[-$max..-1];
+}
+
+if ($new_first) {
+  @items = reverse @items;
+}
+
+</%init>
+
+% for (my $i = $offset; $i < scalar(@items); $i++) {
+<li class="item">
+  <span class="iebugfix">
+<& item.mas, item => $items[$i], short => $short, show_icon => $show_icon,
+             show_date => $show_date, show_more_link => $show_more_link, 
+             show_author => $show_author, use_thumbs => $use_thumbs, sig => $sig &>
+  </span>
+</li>
+% }

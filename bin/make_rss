@@ -1,0 +1,113 @@
+#!/usr/bin/perl -w  # -*-Perl-*-
+#----------------------------------------------------------------------
+# make_rss
+
+use warnings;
+use strict;                     # Always use strict!
+use Cwd;
+
+my $start_dir;
+BEGIN {
+  $start_dir = getcwd();
+  push (@INC, "$start_dir/lib");
+}
+
+use File::Spec;
+use File::Compare;
+use XML::RSS;
+use LabServ;
+use LabServ::Config;
+
+my $labserv_home = "http://www.labourservative.org.uk";
+
+# These are directories.  The canonpath method removes any cruft
+# like doubled slashes.
+my ($source, $target) = map { File::Spec->canonpath($_) } @ARGV;
+
+my $lab_serv = new LabServ(items_dir => "$start_dir/$source");
+
+die "Need a source and target\n"
+  unless defined $source && -d $source && defined $target;
+
+my $rss = new XML::RSS (version => '1.0');
+
+
+# create an RSS 1.0 file (http://purl.org/rss/1.0/)
+use XML::RSS;
+ $rss->channel(
+               title => "Labourservative Party",
+               link  => "$labserv_home",
+               description => "The website of the Labourservative Party",
+   dc => {
+     subject    => "Labourservative Party",
+     creator    => 'webmaster@labourservative.org.uk',
+     publisher  => 'webmaster@labourservative.org.uk',
+     rights     => 'Copyright 2006, Labourservative Party',
+     language   => 'en-us',
+   },
+   syn => {
+     updatePeriod     => "hourly",
+     updateFrequency  => "1",
+     updateBase       => "1901-01-01T00:00+00:00",
+   },
+   taxo => [
+     'http://dmoz.org/Regional/Europe/United_Kingdom/Society_and_Culture/Politics/Parties/',
+   ]
+ );
+
+$rss->image(title => "Labourservative Party",
+            url   => "$labserv_home/img/box_logo.gif",
+            link  => "$labserv_home",
+            dc => {
+                   creator  => "webmaster\@labourservative.org.uk",
+                  },
+           );
+
+
+
+my @items = reverse $lab_serv->filter_items(['news', 'blog', 'ask', 'pic'], (), '!:hidden');
+
+for my $item (@items) {
+  my $desc;
+
+  my @paras = @{$item->text()};
+  for (my $i = 0; $i < @paras; $i++) {
+    my $para = $paras[$i];
+    my $img = $item->image();
+    my $img_pos = $item->image_position();
+    if ($i == 0 && defined $img) {
+      $desc .= "<img style='float:$img_pos' src='http://www.labourservative.org.uk/thumbs/$img'/>";
+    }
+
+    $para =~ s/\s*\n\s*/ /g;
+    $para =~ s/<span class="hidelink">([^<]+)<\/span>/$1/g;
+    $para =~ s|<img src="(img/[^\"]+)"|<img src="http://www.labourservative.org.uk/$1"/>|g;
+
+    $desc .= "<p>$para</p>\n";
+  }
+
+  my $id = $item->id();
+  my $type = $item->type();
+
+  $rss->add_item(
+                 title       => $item->subject() . (defined $item->author() ?
+                                                    ' - ' . $item->author() :
+                                                    ''),
+                 link        => "$labserv_home/${type}_${id}",
+                 description => $desc,
+                );
+
+}
+
+# or save it to a file
+$rss->save("$target.tmp");
+
+if (!-e $target ||
+    File::Compare::compare ($target, "$target.tmp") == 1) {
+  # needs updating
+  warn "out of date: $target\n";
+  rename "$target.tmp", $target or die;
+} else {
+  unlink "$target.tmp" or die;
+}
+

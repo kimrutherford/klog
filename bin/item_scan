@@ -1,0 +1,27 @@
+#!/usr/bin/perl -w  # -*-Perl-*-
+#----------------------------------------------------------------------
+# news -- Kim Rutherford
+
+BEGIN {
+  push (@INC, "lib");
+}
+
+use strict;
+use warnings;
+
+if (@ARGV < 1) {
+  die "need more arguments\n";
+}
+
+my $dir = "items";
+
+use LabServ;
+
+my $type = shift;
+my @tags = @ARGV;
+
+my @items = LabServ->filter_items($dir, $type, @tags);
+
+for my $item (@items) {
+  print "$type ", scalar(gmtime($item->date())), " ", $item->subject(), "\n";
+}

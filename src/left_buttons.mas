@@ -1,0 +1,70 @@
+<%args>
+ $title
+</%args>
+
+<div>
+  <a href="news">
+    <img src="img/news_button.jpg"
+         class="graphic <% $title eq 'News' ? 'selected' : '' %>"
+         width="110" height="55"
+         alt="News" title="News"/>
+  </a>
+</div>
+<div>
+  <a href="ask">
+    <img src="img/ask_tony_button.jpg" 
+         class="graphic <% $title eq 'Ask Tony' ? 'selected' : '' %>"
+         width="110" height="55"
+         alt="Ask Tony Blair" title="Ask Tony Bliar"/>
+  </a>
+</div>
+<div>
+  <a href="blog">
+    <img src="img/blog_button.png"
+         class="graphic <% $title eq 'Blog' ? 'selected' : '' %>"
+         width="110" height="55"
+         alt="Blog" title="Blog"/>
+  </a>
+</div>
+<div>
+  <a href="/photos">
+    <img src="img/photos_button.png"
+         class="graphic <% $title eq 'Photos' ? 'selected' : '' %>"
+         width="110" height="55"
+         alt="Photos" title="Photos"/>
+  </a>
+</div>
+<div>
+  <a href="people">
+    <img src="img/party_people_button.png"
+         class="graphic <% $title eq 'People' ? 'selected' : '' %>"
+         width="110" height="55"
+         alt="People" title="People"/>
+  </a>
+</div>
+<div>
+  <a href="history">
+    <img src="img/history_button.png"
+         class="graphic <% $title eq 'History' ? 'selected' : '' %>"
+         width="110" height="55"
+         alt="Party history" title="Party history"/>
+  </a>
+</div>
+<!--
+<div>
+  <a href="help">
+    <img src="img/help_the_party_button.png"
+         class="graphic <% $title eq 'Help' ? 'selected' : '' %>"
+         width="110" height="55"
+         alt="Help the Party" title="Help the Party"/>
+  </a>
+</div>
+<div>
+  <a href="/manifesto">
+    <img src="img/manifesto_button.jpg"
+         class="graphic <% $title eq 'Manifesto' ? 'selected' : '' %>"
+         width="110" height="55"
+         alt="Manfesto" title="Manfesto"/>
+  </a>
+</div>
+-->

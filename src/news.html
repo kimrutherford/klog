@@ -1,0 +1,10 @@
+<%attr>
+title => 'News'
+</%attr>
+
+<h1>News archive</h1>
+<ul class="shortnews">
+<& show_items.mas, type => 'news', short => 1, max => 30, new_first => 1 &>
+</ul>
+
+<div class="clear"/>

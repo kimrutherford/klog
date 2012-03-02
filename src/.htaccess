@@ -1,0 +1,5 @@
+Options -Indexes
+
+RewriteEngine  on
+RewriteRule    banner_pic  /cgi-bin/dbanner
+

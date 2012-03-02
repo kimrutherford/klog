@@ -1,0 +1,44 @@
+<%attr>
+title => 'Detail'
+</%attr>
+<%init>
+my $item = $ARGS{item};
+my $type = $item->type();
+my $is_gallery = grep { $_ eq $item->type() } ('pic', 'person');
+my $sig;
+
+if ($type eq 'ask') {
+  my $link_maker = $m->interp()->{link_maker};
+  $sig = "-- Tony";
+  $link_maker->make_links(\$sig);
+}
+</%init>
+
+<div class="iebugfix">
+<%perl>
+  if ($is_gallery) {
+    if ($type eq 'pic') {
+      print "<h1>Photo Gallery</h1>\n";
+    } else {
+      print "<h1>Party People</h1>\n";
+    }
+  } else {
+    my $subject = $item->subject();
+    my $display_type = LabServ->display_type($type);
+    print "<h1>$display_type: $subject </h1>\n";
+  }
+</%perl>
+  <div class="itemdetail">
+<& item.mas, item => $item, show_title => $is_gallery,
+             image_at_top => $is_gallery, 
+             show_date => $type ne 'person' && $type ne 'history',
+             sig => $sig &>
+  </div>
+% my $ref_manager = $m->interp()->{ref_manager};
+% if ($ref_manager->get_references($item)) {
+  <div class="itemrefs">
+<& item_refs.mas, item => $item &>
+  </div>
+% }
+  <div class="clear"/>
+</div>

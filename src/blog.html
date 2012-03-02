@@ -1,0 +1,10 @@
+<%attr>
+title => 'Blog'
+</%attr>
+
+<h1>Party Blog</h1>
+<ul class="longnews">
+<& show_items.mas, type => 'blog', max => 10, new_first => 1 &>
+</ul>
+
+<div class="clear"/>

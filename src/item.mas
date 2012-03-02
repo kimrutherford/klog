@@ -1,0 +1,87 @@
+<%args>
+$item
+$short => 0
+$show_title => 1
+$show_icon => 0
+$show_date => 1
+$show_author => 'yes'
+$show_more_link => 1
+$use_thumbs => 0
+$image_at_top => 0
+$sig => undef
+</%args>
+<%init>
+use LabServ::Image;
+use LabServ::LinkMaker;
+my $subject = $item->subject();
+my $id = $item->id();
+my $type = $item->type();
+my $dmy = $item->dmy();
+my $author = $item->author();
+my $link_maker = $m->interp()->{link_maker};
+
+if (!$short && $type ne 'person') {
+  if (defined $author) {
+    $link_maker->make_links(\$author);
+  }
+  $link_maker->make_links(\$subject);
+}
+</%init>
+
+<%perl>
+if ($image_at_top) {
+  LabServ::Image->img($item, 1, $use_thumbs);
+}
+</%perl>
+
+<h3>
+  <span class="subject">
+<%perl>
+  if ($show_title) {
+    print "<a href='${type}_${id}'>";
+    if ($show_icon) {
+      print "<img src='img/${type}_icon.png' width='27' height='10' class='icon' />"
+    }
+    print "$subject";
+    if (!$show_icon and $type eq 'person') {
+      my $post = $item->post();
+
+      if (defined $post) {
+        print "<br/><span class='jobtitle'>$post</span>\n";
+      }
+    }
+
+    if ($show_author eq 'after-subject' && defined $author) {
+      print "<span class='author'> - ", $author, " </span>\n";
+    }
+
+    print "</a>\n";
+  }
+</%perl>
+  </span>
+</h3>
+<%perl>
+  if ($show_date || $show_author eq 'yes' && defined $author) {
+    print "<h4>\n";
+  }
+  if ($show_date) {
+    print "<span class='date'> $dmy </span>\n";
+  }
+  if ($show_author eq 'yes' && defined $author) {
+    print "<span class='author'> ";
+    print " - " if ($show_date);
+    print $author, " </span>\n";
+  }
+  if ($show_date || $show_author eq 'yes' && defined $author) {
+    print "</h4>\n";
+  }
+
+  if ($short) {
+    if ($show_more_link) {
+      print "<a href='${type}_${id}'><span class='more'>more ...</span></a>\n";
+    }
+  } else {
+    $m->comp('item_text.mas', item => $item, image_at_top => $image_at_top,
+             link_image => $show_title, sig => $sig, use_thumbs => $use_thumbs);
+  }
+</%perl>

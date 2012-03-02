@@ -1,0 +1,24 @@
+#!/bin/sh -
+
+echo Starting generation
+
+chmod -R a+r src
+
+DEST=www
+
+mkdir -p $DEST
+
+bin/create_thumbs
+bin/make_rss items $DEST/rss.xml
+
+if bin/generate.pl src $DEST
+then
+  echo Successfully finished generation
+  cd src > /dev/null
+  img_files=`find . -type f -name '*.gif' -o -name '*.jpg' -o -name '*.png' -o -name '*.css'`
+  tar cf - .htaccess favicon.ico $img_files | (cd $DEST > /dev/null; tar xf -)
+else
+  echo generate.pl failed
+  exit 1
+fi
+
